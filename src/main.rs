@@ -1,0 +1,99 @@
+#![allow(warnings)]
+use chrono::prelude::*;
+use clap::{Parser, Subcommand};
+use csv::Reader;
+use csvimporter::import_transactions;
+use ledger::Ledger;
+use std::error::Error;
+//use std::io::Error;
+use std::path::Path;
+use std::{fs, process};
+use toml::Value;
+use transaction::*;
+use utils::read_ledger_files;
+
+mod accounts;
+mod csvimporter;
+mod ledger;
+mod price;
+mod transaction;
+mod utils;
+
+#[derive(Parser, Debug)]
+#[command(author = "Federico Carles", version = "0.1", about, long_about = None)]
+struct Args {
+    /// Path to ledger file or directory
+    #[arg(short, long)]
+    ledger: String,
+    #[command(subcommand)]
+    command: Option<Commands>,
+}
+
+#[derive(Debug, Clone, Subcommand)]
+enum Commands {
+    /// Print account balance sheet report
+    Balance {
+        /// Filter accounts by account type
+        #[arg(short, long, num_args(0..))]
+        accounts: Option<Vec<String>>,
+        /// Filter transactions by year
+        #[arg(short, long)]
+        year: Option<String>,
+        /// Price balances at specific currency
+        #[arg(short, long)]
+        currency: Option<String>,
+    },
+    /// Print transactions journal report
+    Journal {
+        /// Filter transactions by year
+        #[arg(short, long)]
+        year: Option<String>,
+        /// Filter accounts by account type
+        #[arg(short, long)]
+        atype: Option<String>,
+        /// Filter accounts by account name
+        #[arg(short, long)]
+        account: Option<String>,
+        /// Filter transactions by payee
+        #[arg(short, long)]
+        payee: Option<String>,
+    },
+    /// Import transactions from csv
+    Import {
+        /// CSV file with transactions to import
+        #[arg(short, long)]
+        csv: String,
+        /// Destination toml file with transactions
+        #[arg(short, long)]
+        toml: Option<String>,
+        /// Date format
+        #[arg(short, long)]
+        format: Option<String>,
+    },
+}
+
+fn main() -> Result<(), Box<dyn Error>> {
+    let args = Args::parse();
+    let ledger = read_ledger_files(&args.ledger);
+
+    match args.command {
+        Some(Commands::Balance {
+            year,
+            accounts,
+            currency,
+        }) => ledger?.print_trial_balances(year, accounts, currency),
+        None => {}
+        Some(Commands::Journal {
+            year,
+            atype,
+            account,
+            payee,
+        }) => ledger?.print_journal(year, atype, account, payee),
+        None => {}
+        Some(Commands::Import { csv, toml, format }) => {
+            import_transactions(&csv, &args.ledger, format)?
+        }
+        None => {}
+    }
+    Ok(())
+}
