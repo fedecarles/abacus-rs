@@ -30,7 +30,7 @@ pub fn import_transactions(
         let mut row: CsvRow = result?;
         row.date = NaiveDate::parse_from_str(
             row.date.as_str(),
-            &date_format.clone().unwrap_or("%d/%m/%Y".to_string()),
+            &date_format.to_owned().unwrap_or("%d/%m/%Y".to_string()),
         )
         .unwrap_or_default()
         .to_string();

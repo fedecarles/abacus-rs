@@ -190,7 +190,7 @@ impl Ledger {
     }
 
     pub fn print_accounts(self) {
-        let name_list: Vec<usize> = self.accounts.iter().map(|a| a.clone().name.len()).collect();
+        let name_list: Vec<usize> = self.accounts.iter().map(|a| a.name.len()).collect();
         let name_max: &usize = name_list.iter().max().unwrap();
         for a in self.accounts {
             let output = format!(

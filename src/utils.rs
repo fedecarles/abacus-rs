@@ -35,29 +35,6 @@ pub fn read_ledger_files(ledger_path: &str) -> Result<Ledger, Box<dyn Error>> {
     return ledger;
 }
 
-//match fs::metadata(ledger_path) {
-//    Ok(file) => {
-//        if file.is_file() {
-//            Ledger::new(ledger_path)?
-//        } else if file.is_dir() {
-//            let mut concatenated_files = String::new();
-//            let files = fs::read_dir(ledger_path)?;
-//            for f in files {
-//                let f = f?;
-//                let file_path = f.path();
-
-//                if file_path.is_file() && file_path.extension().unwrap_or_default() == "toml" {
-//                    let toml_content =
-//                        fs::read_to_string(file_path).expect("Failed to read file.");
-//                    concatenated_files.push_str(&toml_content);
-//                }
-//            }
-//            Ok(Ledger::new(&concatenated_files))?
-//        }
-//    }
-//    Err(e) => e,
-//}
-
 // Deserialize a NaiveDate from a string
 pub fn deserialize_date<'de, D>(deserializer: D) -> Result<NaiveDate, D::Error>
 where
