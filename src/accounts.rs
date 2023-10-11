@@ -1,5 +1,5 @@
 use chrono::prelude::*;
-use std::{fmt, fs::write};
+use std::fmt;
 
 #[derive(Debug, Clone, Eq, Ord, PartialEq, PartialOrd)]
 pub enum AccountType {

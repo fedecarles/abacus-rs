@@ -3,13 +3,9 @@ use crate::price::Price;
 use crate::transaction::Transaction;
 use crate::utils::*;
 use chrono::prelude::*;
-use std::any::{type_name, Any};
 use std::collections::HashMap;
 use std::error::Error;
-use std::fmt;
-use std::fs;
 use std::str::FromStr;
-use std::string::ParseError;
 use toml::Value;
 
 #[derive(Debug)]
@@ -142,7 +138,7 @@ impl Ledger {
         name: Option<String>,
         payee: Option<String>,
     ) {
-        &self.transactions.sort_by(|a, b| a.date.cmp(&b.date));
+        let _ = &self.transactions.sort_by(|a, b| a.date.cmp(&b.date));
 
         let filtered_transactions: Vec<&Transaction> = match year {
             Some(y) => self._query_by_transaction_date(&y),
@@ -205,13 +201,13 @@ impl Ledger {
         }
     }
 
-    pub fn print_trial_balances(
+    pub fn print_balances(
         &mut self,
         period: Option<String>,
         account_type: Option<Vec<String>>,
         price: Option<String>,
     ) {
-        &self
+        let _ = &self
             .accounts
             .sort_by(|a, b| a.account_type.cmp(&b.account_type));
 
@@ -227,15 +223,10 @@ impl Ledger {
                 .collect(),
             None => self.accounts.iter().collect(),
         };
-        let name_list: Vec<usize> = filtered_accounts
-            .iter()
-            .map(|a| a.clone().name.len())
-            .collect();
+        let name_list: Vec<usize> = filtered_accounts.iter().map(|a| a.name.len()).collect();
         let name_max: &usize = name_list.iter().max().unwrap();
 
-        let prices: &Vec<Price> = &self.prices;
-
-        let bal = &self._get_balances(price.to_owned());
+        let bal = &self._get_balances(filtered_transactions, price.to_owned());
 
         let mut types: Vec<&AccountType> =
             filtered_accounts.iter().map(|t| &t.account_type).collect();
@@ -267,13 +258,17 @@ impl Ledger {
         }
     }
 
-    fn _get_balances(&self, price: Option<String>) -> HashMap<String, f32> {
+    fn _get_balances(
+        &self,
+        transactions: Vec<&Transaction>,
+        price: Option<String>,
+    ) -> HashMap<String, f32> {
         let mut balances: HashMap<String, f32> = HashMap::new();
         for a in &self.accounts {
             let opening_balances = balances.entry(a.name.clone()).or_insert(0.0);
             *opening_balances += a.opening_balance.unwrap_or_default();
         }
-        for t in &self.transactions {
+        for t in &transactions {
             let amounts = balances.entry(t.account.clone()).or_insert(0.0);
             *amounts += t.amount * t.quantity;
             let offsets = balances.entry(t.offset_account.clone()).or_insert(0.0);
@@ -282,9 +277,8 @@ impl Ledger {
 
         if let Some(p) = price {
             let mut relevant_prices: HashMap<String, f32> = HashMap::new();
-            let mut x = self.prices.clone();
             let mut selected_currency: Vec<&Price> =
-                x.iter().filter(|c| c.currency.eq(&p)).collect();
+                self.prices.iter().filter(|c| c.currency.eq(&p)).collect();
             selected_currency.sort_by(|a, b| b.date.cmp(&a.date));
 
             for p in selected_currency {

@@ -1,5 +1,4 @@
 use chrono::prelude::*;
-use std::cmp::Ordering;
 
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Price {

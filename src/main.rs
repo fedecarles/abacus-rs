@@ -1,15 +1,9 @@
-#![allow(warnings)]
-use chrono::prelude::*;
+// #![allow(warnings)]
 use clap::{Parser, Subcommand};
-use csv::Reader;
 use csvimporter::import_transactions;
 use ledger::Ledger;
 use std::error::Error;
 //use std::io::Error;
-use std::path::Path;
-use std::{fs, process};
-use toml::Value;
-use transaction::*;
 use utils::read_ledger_files;
 
 mod accounts;
@@ -31,6 +25,8 @@ struct Args {
 
 #[derive(Debug, Clone, Subcommand)]
 enum Commands {
+    /// List accounts
+    Accounts {},
     /// Print account balance sheet report
     Balance {
         /// Filter accounts by account type
@@ -63,9 +59,6 @@ enum Commands {
         /// CSV file with transactions to import
         #[arg(short, long)]
         csv: String,
-        /// Destination toml file with transactions
-        #[arg(short, long)]
-        toml: Option<String>,
         /// Date format
         #[arg(short, long)]
         format: Option<String>,
@@ -77,22 +70,19 @@ fn main() -> Result<(), Box<dyn Error>> {
     let ledger = read_ledger_files(&args.ledger);
 
     match args.command {
+        Some(Commands::Accounts {}) => ledger?.print_accounts(),
         Some(Commands::Balance {
             year,
             accounts,
             currency,
-        }) => ledger?.print_trial_balances(year, accounts, currency),
-        None => {}
+        }) => ledger?.print_balances(year, accounts, currency),
         Some(Commands::Journal {
             year,
             atype,
             account,
             payee,
         }) => ledger?.print_journal(year, atype, account, payee),
-        None => {}
-        Some(Commands::Import { csv, toml, format }) => {
-            import_transactions(&csv, &args.ledger, format)?
-        }
+        Some(Commands::Import { csv, format }) => import_transactions(&csv, &args.ledger, format)?,
         None => {}
     }
     Ok(())

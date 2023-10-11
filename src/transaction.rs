@@ -1,6 +1,5 @@
 use crate::utils::deserialize_date;
 use chrono::prelude::*;
-use serde::{Deserialize, Deserializer};
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 

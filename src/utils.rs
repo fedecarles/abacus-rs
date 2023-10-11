@@ -1,10 +1,8 @@
 use crate::Ledger;
 use chrono::prelude::*;
-use fs::Metadata;
 use serde::{Deserialize, Deserializer};
 use std::error::Error;
 use std::fs::{self, read_to_string};
-use std::path::Path;
 use std::str::FromStr;
 use toml::Value;
 
@@ -19,8 +17,7 @@ pub fn read_ledger_files(ledger_path: &str) -> Result<Ledger, Box<dyn Error>> {
                     let file_path = f.path();
 
                     if file_path.is_file() && file_path.extension().unwrap_or_default() == "toml" {
-                        let toml_content =
-                            fs::read_to_string(file_path).expect("Failed to read file.");
+                        let toml_content = read_to_string(file_path).expect("Failed to read file.");
                         concatenated_files.push_str(&toml_content);
                     }
                 }
@@ -30,7 +27,7 @@ pub fn read_ledger_files(ledger_path: &str) -> Result<Ledger, Box<dyn Error>> {
                 Ledger::new(&toml_content)
             }
         }
-        Err(e) => Ledger::new(ledger_path),
+        Err(_) => Ledger::new(ledger_path),
     };
     return ledger;
 }

@@ -1,11 +1,9 @@
-use crate::transaction::Transaction;
-use crate::utils::deserialize_date;
 use chrono::prelude::*;
-use csv::Reader;
 use serde_derive::{Deserialize, Serialize};
-use std::fs::{read_to_string, File, OpenOptions};
-use std::{error::Error, io, io::Write, process};
-use toml::{to_string_pretty, Value};
+use std::error::Error;
+use std::fs::OpenOptions;
+use std::io::Write;
+use toml::to_string_pretty;
 
 #[derive(Debug, Deserialize, Serialize)]
 struct CsvRow {
@@ -49,7 +47,7 @@ pub fn import_transactions(
 
     for t in new_transactions {
         let toml_value = to_string_pretty(&t)?;
-        file.write("\n[[transaction]]\n".as_bytes());
+        file.write("\n[[transaction]]\n".as_bytes())?;
         file.write_all(toml_value.to_string().as_bytes())
             .expect("Failed to write to file");
     }
