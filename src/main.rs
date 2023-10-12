@@ -28,16 +28,16 @@ enum Commands {
     /// List accounts
     Accounts {},
     /// Print account balance sheet report
-    Balance {
+    Balances {
         /// Filter accounts by account type
         #[arg(short, long, num_args(0..))]
-        accounts: Option<Vec<String>>,
+        class: Option<Vec<String>>,
         /// Filter transactions by year
         #[arg(short, long)]
         year: Option<String>,
         /// Price balances at specific currency
         #[arg(short, long)]
-        currency: Option<String>,
+        price: Option<String>,
     },
     /// Print transactions journal report
     Journal {
@@ -46,7 +46,7 @@ enum Commands {
         year: Option<String>,
         /// Filter accounts by account type
         #[arg(short, long)]
-        atype: Option<String>,
+        class: Option<String>,
         /// Filter accounts by account name
         #[arg(short, long)]
         account: Option<String>,
@@ -71,17 +71,15 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     match args.command {
         Some(Commands::Accounts {}) => ledger?.print_accounts(),
-        Some(Commands::Balance {
-            year,
-            accounts,
-            currency,
-        }) => ledger?.print_balances(year, accounts, currency),
+        Some(Commands::Balances { year, class, price }) => {
+            ledger?.print_balances(year, class, price)
+        }
         Some(Commands::Journal {
             year,
-            atype,
+            class,
             account,
             payee,
-        }) => ledger?.print_journal(year, atype, account, payee),
+        }) => ledger?.print_journal(year, class, account, payee),
         Some(Commands::Import { csv, format }) => import_transactions(&csv, &args.ledger, format)?,
         None => {}
     }

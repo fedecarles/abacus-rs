@@ -7,6 +7,8 @@ use toml::to_string_pretty;
 
 #[derive(Debug, Deserialize, Serialize)]
 struct CsvRow {
+    //#[serde(serialize_with = "serialize_date")]
+    //#[serde(deserialize_with = "deserialize_date")]
     date: String,
     account: String,
     payee: Option<String>,
@@ -27,7 +29,7 @@ pub fn import_transactions(
     for result in rdr.deserialize() {
         let mut row: CsvRow = result?;
         row.date = NaiveDate::parse_from_str(
-            row.date.as_str(),
+            row.date.to_string().as_str(),
             &date_format.to_owned().unwrap_or("%d/%m/%Y".to_string()),
         )
         .unwrap_or_default()
@@ -45,11 +47,15 @@ pub fn import_transactions(
         .create(true)
         .open(toml_file)?;
 
+    println!("Import start");
     for t in new_transactions {
+        println!("Imported: {:?}", t);
         let toml_value = to_string_pretty(&t)?;
         file.write("\n[[transaction]]\n".as_bytes())?;
-        file.write_all(toml_value.to_string().as_bytes())
+        file.write_all(toml_value.as_bytes())
             .expect("Failed to write to file");
     }
+    println!("Import complete");
+
     Ok(())
 }

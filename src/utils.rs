@@ -32,6 +32,15 @@ pub fn read_ledger_files(ledger_path: &str) -> Result<Ledger, Box<dyn Error>> {
     return ledger;
 }
 
+// TODO implement serialization for dates
+// Serialize a String from a NaiveDate
+//pub fn serialize_date<S>(date: &NaiveDate, serializer: S) -> Result<S::Ok, S::Error>
+//where
+//    S: ser::Serializer,
+//{
+//    serializer.serialize_str(&date.format("%Y-%m-%d").to_string())
+//}
+
 // Deserialize a NaiveDate from a string
 pub fn deserialize_date<'de, D>(deserializer: D) -> Result<NaiveDate, D::Error>
 where
