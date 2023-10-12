@@ -1,0 +1,28 @@
+[[transaction]]
+date = 2023-10-10
+account = "Dining"
+amount = 20
+offset_account = "Savings Account"
+payee = "RESTAURANT X"
+
+[[transaction]]
+date = 2023-10-11
+account = "Dining"
+amount = 35.0
+offset_account = "Savings Account"
+payee = "RESTAURANT Y"
+
+[[transaction]]
+date = 2023-10-10
+account = "Clothes"
+amount = 200
+offset_account = "Credit Card"
+payee = "FANCY CLOTH STORE"
+note = "credit card purchase"
+
+[[transaction]]
+date = 2023-11-02
+account = "Salary"
+amount = -2300.00
+offset_account = "Savings Account"
+payee = "EMPLOYER"

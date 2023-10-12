@@ -1,0 +1,17 @@
+[[price]]
+date = 2023-10-02
+commodity = "USD"
+price = 930.00
+currency = "ARS"
+
+[[price]]
+date = 2023-09-30
+commodity = "VOO"
+price = 390.50
+currency = "USD"
+
+[[price]]
+date = 2023-09-30
+commodity = "BTC"
+price = 27820.2
+currency = "USD"

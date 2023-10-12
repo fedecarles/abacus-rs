@@ -1,0 +1,181 @@
+[[account]]
+open = 2023-01-01
+name = "Savings Account"
+type = "Assets"
+currency = "USD"
+opening_balance = 1000.00
+
+[[account]]
+open = 2023-01-01
+name = "Cash"
+type = "Assets"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Brokerage Account"
+type = "Assets"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Crypto Wallet"
+type = "Assets"
+currency = "BTC"
+opening_balance = 0.56
+
+[[account]]
+open = 2023-01-01
+name = "Salary"
+type = "Income"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Interests"
+type = "Income"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Dividends"
+type = "Income"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Credit Card"
+type = "Liabilities"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Books"
+type = "Expenses"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Cable"
+type = "Expenses"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Childcare"
+type = "Expenses"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Clothes"
+type = "Expenses"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Commisions"
+type = "Expenses"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Computer"
+type = "Expenses"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Dining"
+type = "Expenses"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Education"
+type = "Expenses"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Entertainment"
+type = "Expenses"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Gifts"
+type = "Expenses"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Groceries"
+type = "Expenses"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Hobbies"
+type = "Expenses"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Home Repair"
+type = "Expenses"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Medical Expensess"
+type = "Expenses"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Miscellaneous"
+type = "Expenses"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Online Services"
+type = "Expenses"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Phone"
+type = "Expenses"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Transportation"
+type = "Expenses"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Taxes"
+type = "Expenses"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Utilities"
+type = "Expenses"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Services"
+type = "Expenses"
+currency = "USD"
+
+[[account]]
+open = 2023-01-01
+name = "Pocket"
+type = "Expenses"
+currency = "USD"
