@@ -1,9 +1,10 @@
 # Abacus-rs
 ### A cli plain-text accounting program
 
-This tool was writen for my own purposes. If you are serious about plain-text accounting, please consider using [ledger],
-[hledger] or [beancount]. Or visit [plaintextaccounting.org](https://plaintextaccounting.org/). For a rust solution, you 
-can check [rust_ledger](https://github.com/ebcrowder/rust_ledger/tree/main), where I took some inspiration from.
+This tool was writen for my own purposes. If you are serious about plain-text accounting, please consider using [ledger](https://ledger-cli.org/),
+[hledger](https://hledger.org/) or [beancount](https://github.com/beancount/). Or visit [plaintextaccounting.org](https://plaintextaccounting.org/) to learn more about it.
+
+For another rust base approach, you can also check [rust_ledger](https://github.com/ebcrowder/rust_ledger/tree/main), where I took some inspiration from.
 
 ## Features
 - Double-entry **like** account keeping.
@@ -41,7 +42,7 @@ Expenses, Income, Equity, Stock, MutualFund, Holding or Cash.
 
 The account currency can be declared with any terminology.
 
-```
+```toml
 [[account]]
 open = 2023-09-30
 name = "Savings Account"
@@ -57,7 +58,7 @@ currency = "USD"
 
 An optional opening balance can be included.
 
-```
+```toml
 [[account]]
 open = 2023-09-30
 name = "Savings Account"
@@ -74,7 +75,7 @@ The Offset Amount nd Quantity can be explicity declared,
 otherwise it will be implicitly as the inverse of the amount 
 or to one (1) respectively. Payee and note are optional fields.
 
-```
+```toml
 [[transaction]]
 date = 2023-10-03
 amount = 100.00
@@ -108,7 +109,6 @@ currency = "USD"
 
 ### Print Balances
 
-Account balances are printed for all accounts by default. 
 ```bash
 Usage: abacus-rs --ledger <LEDGER> balances [OPTIONS]
 
@@ -118,6 +118,7 @@ Options:
   -p, --price <PRICE>       Price balances at specific currency
   -h, --help                Print help
 ```
+
 Account balances are printed for all accounts by default. 
 
 ```bash
@@ -149,8 +150,6 @@ Liabilities
 
 ### Print Journal
 
-A journal is a list of the existing transactions in the ledger. 
-
 ```bash
 Print transactions journal report
 
@@ -163,6 +162,7 @@ Options:
   -p, --payee <PAYEE>      Filter transactions by payee
   -h, --help               Print help
 ```
+A journal is a list of the existing transactions in the ledger. 
 
 Transactions can be filtered by year, account class, name or payee.
 
@@ -200,6 +200,7 @@ Running the import requires specifying the file where the toml transaction
 are to be imported and the csv file with the details.
 
 Example of running the import script.
+
 ```bash
 > abacus-rs -l example/transactions.toml import -c ~/Downloads/bbva/visa/sep23.csv
 Import start
