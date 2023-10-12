@@ -3,14 +3,14 @@ use std::fmt;
 
 #[derive(Debug, Clone, Eq, Ord, PartialEq, PartialOrd)]
 pub enum AccountType {
-    Asset,
+    Assets,
     Income,
-    Liability,
-    Expense,
+    Liabilities,
+    Expenses,
     Equity,
-    Stock,
-    MutualFund,
-    Holding,
+    Stocks,
+    MutualFunds,
+    Holdings,
     Cash,
     Unknown,
 }
@@ -18,14 +18,14 @@ pub enum AccountType {
 impl fmt::Display for AccountType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
-            AccountType::Asset => write!(f, "{:<11}", "Asset"),
+            AccountType::Assets => write!(f, "{:<11}", "Assets"),
             AccountType::Income => write!(f, "{:<11}", "Income"),
-            AccountType::Liability => write!(f, "{:<11}", "Liability"),
-            AccountType::Expense => write!(f, "{:<11}", "Expense"),
+            AccountType::Liabilities => write!(f, "{:<11}", "Liabilities"),
+            AccountType::Expenses => write!(f, "{:<11}", "Expenses"),
             AccountType::Equity => write!(f, "{:<11}", "Equity"),
-            AccountType::Stock => write!(f, "{:<11}", "Stock"),
-            AccountType::MutualFund => write!(f, "{:<11}", "MutualFund"),
-            AccountType::Holding => write!(f, "{:<11}", "Holding"),
+            AccountType::Stocks => write!(f, "{:<11}", "Stocks"),
+            AccountType::MutualFunds => write!(f, "{:<11}", "MutualFunds"),
+            AccountType::Holdings => write!(f, "{:<11}", "Holdings"),
             AccountType::Cash => write!(f, "{:<11}", "Cash"),
             AccountType::Unknown => write!(f, "{:<11}", "Unknown"),
         }
@@ -47,7 +47,7 @@ impl Default for Account {
             name: String::from("new_account"),
             open: Local::now().date_naive(),
             currency: String::from("USD"),
-            account_type: AccountType::Asset,
+            account_type: AccountType::Assets,
             opening_balance: None,
         }
     }
@@ -83,14 +83,14 @@ impl fmt::Display for Account {
 
 pub fn account_to_enum(account_type: &str) -> AccountType {
     match account_type {
-        "Asset" => AccountType::Asset,
+        "Assets" => AccountType::Assets,
         "Income" => AccountType::Income,
-        "Liability" => AccountType::Liability,
-        "Expense" => AccountType::Expense,
+        "Liabilities" => AccountType::Liabilities,
+        "Expenses" => AccountType::Expenses,
         "Equity" => AccountType::Equity,
-        "Stock" => AccountType::Stock,
-        "MutualFund" => AccountType::MutualFund,
-        "Holding" => AccountType::Holding,
+        "Stocks" => AccountType::Stocks,
+        "MutualFunds" => AccountType::MutualFunds,
+        "Holdings" => AccountType::Holdings,
         "Cash" => AccountType::Cash,
         _ => AccountType::Unknown,
     }
