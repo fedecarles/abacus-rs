@@ -228,12 +228,13 @@ impl Ledger {
 
         let bal = &self._get_balances(filtered_transactions, price.to_owned());
 
-        let mut types: Vec<&AccountType> =
+        let mut atypes: Vec<&AccountType> =
             filtered_accounts.iter().map(|t| &t.account_type).collect();
-        types.dedup();
+        atypes.dedup();
         let is_zero = 0.0 as f32;
 
-        for t in types {
+        for t in atypes {
+            let mut total = 0.0;
             println!("{}", t);
             for a in &filtered_accounts {
                 if t == &a.account_type {
@@ -251,10 +252,14 @@ impl Ledger {
                                 name_width = name_max,
                             );
                             println!("{}", output);
+                            total += amount;
                         }
                     }
                 }
             }
+            println!("{:-<45}", "-");
+            let subtot = format!("\t\t\tTotal: {:.2}", total,);
+            println!("{}", subtot);
         }
     }
 
