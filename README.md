@@ -71,8 +71,8 @@ opening_balance = 1000.00
 
 Transactions require a date (in YYYY-MM-DD format),
 an amount (float or integer), an account and an offset_account.
-The Offset Amount nd Quantity can be explicity declared,
-otherwise it will be implicitly as the inverse of the amount 
+The Offset Amount and Quantity can be explicity declared,
+otherwise it will be set as the inverse of the amount 
 or to one (1) respectively. Payee and note are optional fields.
 
 ```toml
@@ -135,7 +135,7 @@ Expenses
 ```
 
 Specific account classes can be passed with the -c option to print a more typical
-balansheet view. The amount can also be priced at a specific currency, provided
+balance sheet view. The amount can also be priced at a specific currency, provided
 there is a **price** entry for it in the ledger.
 
 ```bash

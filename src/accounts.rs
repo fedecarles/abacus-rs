@@ -95,3 +95,55 @@ pub fn account_to_enum(account_type: &str) -> AccountType {
         _ => AccountType::Unknown,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_account_default() {
+        let account = Account::default();
+        assert_eq!(account.name, "new_account");
+        assert_eq!(account.currency, "USD");
+        assert_eq!(account.account_type, AccountType::Assets);
+        assert_eq!(account.open, Local::now().date_naive());
+        assert_eq!(account.opening_balance, None);
+    }
+
+    #[test]
+    fn test_account_new() {
+        let name = "Test Account".to_string();
+        let open = NaiveDate::from_ymd_opt(2023, 10, 13).unwrap();
+        let currency = "EUR".to_string();
+        let account_type = AccountType::Income;
+        let opening_balance = Some(1000.0);
+
+        let account = Account::new(
+            name.clone(),
+            open,
+            currency.clone(),
+            account_type.clone(),
+            opening_balance,
+        );
+
+        assert_eq!(account.name, name);
+        assert_eq!(account.currency, currency);
+        assert_eq!(account.account_type, account_type);
+        assert_eq!(account.open, open);
+        assert_eq!(account.opening_balance, opening_balance);
+    }
+
+    #[test]
+    fn test_account_to_enum() {
+        assert_eq!(account_to_enum("Assets"), AccountType::Assets);
+        assert_eq!(account_to_enum("Income"), AccountType::Income);
+        assert_eq!(account_to_enum("Liabilities"), AccountType::Liabilities);
+        assert_eq!(account_to_enum("Expenses"), AccountType::Expenses);
+        assert_eq!(account_to_enum("Equity"), AccountType::Equity);
+        assert_eq!(account_to_enum("Stocks"), AccountType::Stocks);
+        assert_eq!(account_to_enum("MutualFunds"), AccountType::MutualFunds);
+        assert_eq!(account_to_enum("Holdings"), AccountType::Holdings);
+        assert_eq!(account_to_enum("Cash"), AccountType::Cash);
+        assert_eq!(account_to_enum("Unknown"), AccountType::Unknown);
+    }
+}

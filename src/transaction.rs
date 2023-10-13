@@ -56,3 +56,77 @@ impl Transaction {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_transaction_new() {
+        let date = NaiveDate::from_ymd_opt(2023, 10, 13).unwrap();
+        let account = "Account1".to_string();
+        let payee = Some("Payee1".to_string());
+        let quantity = 100.0;
+        let amount = 500.0;
+        let offset_account = "Account2".to_string();
+        let offset_amount = 500.0;
+        let note = Some("Note1".to_string());
+
+        let transaction = Transaction::new(
+            date,
+            account.clone(),
+            payee.clone(),
+            quantity,
+            amount,
+            offset_account.clone(),
+            offset_amount,
+            note.clone(),
+        );
+
+        assert_eq!(transaction.date, date);
+        assert_eq!(transaction.account, account);
+        assert_eq!(transaction.payee, payee);
+        assert_eq!(transaction.quantity, quantity);
+        assert_eq!(transaction.amount, amount);
+        assert_eq!(transaction.offset_account, offset_account);
+        assert_eq!(transaction.offset_amount, offset_amount);
+        assert_eq!(transaction.note, note);
+    }
+
+    #[test]
+    fn test_transaction_display() {
+        let date = NaiveDate::from_ymd_opt(2023, 10, 13).unwrap();
+        let account = "Account1".to_string();
+        let payee = Some("Payee1".to_string());
+        let quantity = 100.0;
+        let amount = 500.0;
+        let offset_account = "Account2".to_string();
+        let offset_amount = 500.0;
+        let note = Some("Note1".to_string());
+
+        let transaction = Transaction::new(
+            date,
+            account.clone(),
+            payee.clone(),
+            quantity,
+            amount,
+            offset_account.clone(),
+            offset_amount,
+            note.clone(),
+        );
+
+        let expected_display = format!(
+            "{:<20} * {:<} - {:<}\n{:<10}:  {:>} qty: {:<}\n{:<10}: {:>}\n",
+            date,
+            payee.clone().unwrap_or_default(),
+            note.clone().unwrap_or_default(),
+            account,
+            amount,
+            quantity,
+            offset_account,
+            offset_amount
+        );
+
+        assert_eq!(transaction.to_string(), expected_display);
+    }
+}

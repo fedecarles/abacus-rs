@@ -3,7 +3,6 @@ use clap::{Parser, Subcommand};
 use csvimporter::import_transactions;
 use ledger::Ledger;
 use std::error::Error;
-//use std::io::Error;
 use utils::read_ledger_files;
 
 mod accounts;
