@@ -171,7 +171,7 @@ impl Ledger {
         name: Option<String>,
         payee: Option<String>,
     ) {
-        let _ = &self.transactions.sort_by(|a, b| a.date.cmp(&b.date));
+        let _ = self.transactions.sort_by(|a, b| a.date.cmp(&b.date));
         self.validate_transactions();
 
         let filtered_transactions: Vec<&Transaction> = match year {
@@ -197,7 +197,7 @@ impl Ledger {
 
         for a in filtered_accounts {
             for t in &filtered_transactions {
-                if t.account.eq(&a.name) {
+                if t.account.eq(&a.name) | t.offset_account.eq(&a.name) {
                     let posting = format!(
                         "{} | {:<name_width$} | {:11.2} | {}",
                         t.date,
