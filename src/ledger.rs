@@ -131,6 +131,39 @@ impl Ledger {
         all_prices
     }
 
+    pub fn validate_transactions(&self) {
+        for t in self.transactions.iter() {
+            // check if the account exists
+            let account_exists = self.accounts.iter().any(|a| a.name == t.account);
+            if !account_exists {
+                panic!("Account {} does not exist", t.account)
+            }
+
+            // check if transactions balances
+            let sum_postings = t.amount + (t.offset_amount);
+            if sum_postings != 0.0 {
+                // only check check balances if the accounts have the same currency
+                let account_currency = &self
+                    .accounts
+                    .iter()
+                    .find(|a| a.name == t.account)
+                    .unwrap()
+                    .currency;
+
+                let offset_currency = &self
+                    .accounts
+                    .iter()
+                    .find(|a| a.name == t.offset_account)
+                    .unwrap()
+                    .currency;
+
+                if account_currency == offset_currency {
+                    panic!("Transaction does not balance:\n {}", t)
+                }
+            }
+        }
+    }
+
     pub fn print_journal(
         &mut self,
         year: Option<String>,
@@ -139,6 +172,7 @@ impl Ledger {
         payee: Option<String>,
     ) {
         let _ = &self.transactions.sort_by(|a, b| a.date.cmp(&b.date));
+        self.validate_transactions();
 
         let filtered_transactions: Vec<&Transaction> = match year {
             Some(y) => self._query_by_transaction_date(&y),
