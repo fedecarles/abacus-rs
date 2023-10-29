@@ -249,6 +249,7 @@ impl Ledger {
             Some(y) => self._query_by_transaction_date(&y),
             None => self.transactions.iter().collect(),
         };
+        self.validate_transactions();
 
         let filtered_accounts: Vec<&Account> = match account_type {
             Some(a) => a
