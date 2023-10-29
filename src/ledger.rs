@@ -171,7 +171,7 @@ impl Ledger {
         name: Option<String>,
         payee: Option<String>,
     ) {
-        let _ = self.transactions.sort_by(|a, b| a.date.cmp(&b.date));
+        self.transactions.sort_by(|a, b| a.date.cmp(&b.date));
         self.validate_transactions();
 
         let filtered_transactions: Vec<&Transaction> = match year {
@@ -195,26 +195,27 @@ impl Ledger {
         let name_list: Vec<usize> = self.accounts.iter().map(|a| a.clone().name.len()).collect();
         let name_max: &usize = name_list.iter().max().unwrap();
 
-        for a in filtered_accounts {
-            for t in &filtered_transactions {
-                if t.account.eq(&a.name) | t.offset_account.eq(&a.name) {
-                    let posting = format!(
-                        "{} | {:<name_width$} | {:11.2} | {}",
-                        t.date,
-                        t.account,
-                        t.amount,
-                        t.payee.clone().unwrap_or_default(),
-                        name_width = name_max + 1
-                    );
-                    let offset = format!(
-                        "{} | {:<name_width$} | {:11.2} |",
-                        t.date,
-                        t.offset_account,
-                        t.offset_amount,
-                        name_width = name_max + 1
-                    );
-                    println!("{}\n{}", posting, offset);
-                }
+        for t in &filtered_transactions {
+            let get_account = filtered_accounts
+                .iter()
+                .find(|a| (a.name == t.account) | (a.name == t.offset_account));
+            if get_account.is_some() {
+                let posting = format!(
+                    "{} | {:<name_width$} | {:11.2} | {}",
+                    t.date,
+                    t.account,
+                    t.amount,
+                    t.payee.clone().unwrap_or_default(),
+                    name_width = name_max + 1
+                );
+                let offset = format!(
+                    "{} | {:<name_width$} | {:11.2} |",
+                    t.date,
+                    t.offset_account,
+                    t.offset_amount,
+                    name_width = name_max + 1
+                );
+                println!("{}\n{}", posting, offset);
             }
         }
     }
