@@ -1,10 +1,11 @@
 # Abacus-rs
 ### A cli plain-text accounting program
 
-This tool was writen for my own purposes. If you are serious about plain-text accounting, please consider using [ledger](https://ledger-cli.org/),
+This tool was writen for my own purposes, though anyone is welcome to use it or contribute.
+But if you are serious about plain-text accounting, please consider using [ledger](https://ledger-cli.org/),
 [hledger](https://hledger.org/) or [beancount](https://github.com/beancount/). Or visit [plaintextaccounting.org](https://plaintextaccounting.org/) to learn more about it.
 
-For another rust base approach, you can also check [rust_ledger](https://github.com/ebcrowder/rust_ledger/tree/main), where I took some inspiration from.
+For another rust based approach, you can also check [rust_ledger](https://github.com/ebcrowder/rust_ledger/tree/main), where I took some inspiration from.
 
 ## Features
 - Double-entry **like** account keeping.
@@ -31,13 +32,13 @@ Options:
 ```
 
 An abacus ledger is toml file, or mutliple toml files, that include accounts,
-transaction and optionaly prices.
+transaction and optionaly, prices.
 
-Running any command require declaring the path to the ledger.
+Running any command requires declaring the path to the ledger.
 
 ### Accounts
 
-An account is declared with a specific type of Assets, Liabilities,
+An account is declared with a specific type; Assets, Liabilities,
 Expenses, Income, Equity, Stock, MutualFund, Holding or Cash.
 
 The account currency can be declared with any terminology.
@@ -73,7 +74,7 @@ Transactions require a date (in YYYY-MM-DD format),
 an amount (float or integer), an account and an offset_account.
 The Offset Amount and Quantity can be explicity declared,
 otherwise it will be set as the inverse of the amount 
-or to one (1) respectively. Payee and note are optional fields.
+and to one (1) respectively. Payee and note are optional fields.
 
 ```toml
 [[transaction]]
@@ -191,7 +192,7 @@ Options:
 ```
 
 To import transactions from a csv file some pre-formatting needs to be done
-to ensure the columns names are mapped with the same names as the toml files.
+to ensure the columns names are mapped with the same names as in the toml files.
 
 Some banks provide statements in credit/debit format and other with sign or 
 parenthesis for negative values, so some number formatting may also be required.
