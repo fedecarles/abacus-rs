@@ -37,6 +37,9 @@ enum Commands {
         /// Price balances at specific currency
         #[arg(short, long)]
         price: Option<String>,
+        /// Group balances by period
+        #[arg(short, long)]
+        group: Option<String>,
     },
     /// Print transactions journal report
     Journal {
@@ -70,9 +73,12 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     match args.command {
         Some(Commands::Accounts {}) => ledger?.print_accounts(),
-        Some(Commands::Balances { year, class, price }) => {
-            ledger?.print_balances(year, class, price)
-        }
+        Some(Commands::Balances {
+            year,
+            class,
+            price,
+            group,
+        }) => ledger?.print_balances(year, class, price, group),
         Some(Commands::Journal {
             year,
             class,
