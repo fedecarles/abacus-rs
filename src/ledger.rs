@@ -251,8 +251,6 @@ impl Ledger {
             None => self.transactions.iter().collect(),
         };
 
-        filtered_transactions.sort_by(|a, b| a.date.cmp(&b.date));
-
         let filtered_accounts: Vec<&Account> = match account_type {
             Some(a) => a
                 .iter()
@@ -261,23 +259,20 @@ impl Ledger {
             None => self.accounts.iter().collect(),
         };
 
-        // Get all unique account names
-        let mut account_names: Vec<String> = Vec::new();
+        filtered_transactions.sort_by(|a, b| a.date.cmp(&b.date));
 
-        for a in &filtered_accounts {
-            if a.opening_balance.is_some() {
-                account_names.push(a.name.to_string())
-            }
-        }
-        for t in filtered_transactions.iter() {
-            account_names.push(t.account.to_string());
-            account_names.push(t.offset_account.to_string());
-        }
+        let mut account_names: Vec<String> = filtered_accounts
+            .iter()
+            .filter(|a| a.opening_balance.is_some())
+            .map(|a| a.name.to_string())
+            .chain(
+                filtered_transactions
+                    .iter()
+                    .flat_map(|t| vec![t.account.to_string(), t.offset_account.to_string()]),
+            )
+            .collect();
         account_names.sort();
         account_names.dedup();
-
-        // find the max lenght of the account names
-        let name_max: Option<usize> = filtered_accounts.iter().map(|a| a.name.len()).max();
 
         // Create a HashMap to store data for each period
         let mut transactions_by_period: HashMap<(u32, u32), Vec<&Transaction>> = HashMap::new();
@@ -285,13 +280,7 @@ impl Ledger {
         // Iterate through the transactions and categorize data by period
         for entry in filtered_transactions {
             let month = entry.date.month();
-            let quarter = match entry.date.month() {
-                1 | 2 | 3 => 1,
-                4 | 5 | 6 => 2,
-                7 | 8 | 9 => 3,
-                10 | 11 | 12 => 4,
-                _ => unreachable!(),
-            };
+            let quarter = quarter(entry.date.month());
             let year = entry.date.year() as u32;
 
             let period: (u32, u32) = match group {
@@ -313,17 +302,25 @@ impl Ledger {
 
         let mut balances_by_period: HashMap<(u32, u32), HashMap<String, f32>> = HashMap::new();
 
-        let mut atypes: Vec<&AccountType> =
-            filtered_accounts.iter().map(|t| &t.account_type).collect();
-        atypes.dedup();
-
-        // Print the data for each period
+        // Get balances for each period
         for (period, transactions) in transactions_by_period {
             let mut bal = self._get_balances(transactions, price.to_owned());
             bal.retain(|_, &mut value| value != 0.0);
             balances_by_period.entry(period).or_insert(bal);
         }
 
+        let sorted_periods: Vec<_> = balances_by_period
+            .keys()
+            .sorted_by(|a, b| b.cmp(&a))
+            .collect();
+
+        // find the max lenght of the account names
+        let name_max: Option<usize> = filtered_accounts.iter().map(|a| a.name.len()).max();
+
+        let mut atypes: Vec<_> = filtered_accounts.iter().map(|t| &t.account_type).collect();
+        atypes.dedup();
+
+        // Begin printing balances
         // Print header
         let header = format!(
             "{:<name_width$}",
@@ -331,7 +328,7 @@ impl Ledger {
             name_width = name_max.unwrap_or(15)
         );
         print!("\t{:>} ", header);
-        for h in balances_by_period.keys().sorted_by(|a, b| b.cmp(&a)) {
+        for h in &sorted_periods {
             print!("\t{:>15}-{}", h.0, h.1);
         }
         println!("");
@@ -350,10 +347,13 @@ impl Ledger {
                     name_width = name_max.unwrap_or(15)
                 );
                 print!("\t{:<15}", name);
-                for p in balances_by_period.keys().sorted_by(|a, b| b.cmp(&a)) {
-                    let period_data = balances_by_period.get(p).unwrap();
-                    if let Some(value) = period_data.get(&a.name) {
-                        print!("\t{:>15.2} {}", value, a.currency);
+                for p in &sorted_periods {
+                    if let Some(period_data) = balances_by_period.get(p) {
+                        if let Some(value) = period_data.get(&a.name) {
+                            print!("\t{:>15.2} {}", value, a.currency);
+                        } else {
+                            print!("\t{:>15.2} {}", 0.0, a.currency);
+                        }
                     } else {
                         print!("\t{:>15.2} {}", 0.0, a.currency);
                     }
