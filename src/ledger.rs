@@ -167,7 +167,8 @@ impl Ledger {
 
     pub fn print_journal(
         &mut self,
-        year: Option<String>,
+        from: Option<String>,
+        to: Option<String>,
         account_type: Option<String>,
         name: Option<String>,
         payee: Option<String>,
@@ -175,10 +176,13 @@ impl Ledger {
         self.transactions.sort_by(|a, b| a.date.cmp(&b.date));
         self.validate_transactions();
 
-        let filtered_transactions: Vec<&Transaction> = match year {
-            Some(y) => self._query_by_transaction_date(&y),
-            None => self.transactions.iter().collect(),
+        let filtered_transactions: Vec<&Transaction> = match (from, to) {
+            (Some(f), Some(t)) => self._query_by_transaction_date(Some(&f), Some(&t)),
+            (Some(f), None) => self._query_by_transaction_date(Some(&f), None),
+            (None, Some(t)) => self._query_by_transaction_date(None, Some(&t)),
+            (None, None) => self.transactions.iter().collect(),
         };
+
         let filtered_transactions: Vec<&Transaction> = match payee {
             Some(p) => self._query_by_transaction_payee(&p),
             None => filtered_transactions,
@@ -239,16 +243,19 @@ impl Ledger {
 
     pub fn print_balances(
         &mut self,
-        period: Option<String>,
+        from: Option<String>,
+        to: Option<String>,
         account_type: Option<Vec<String>>,
         price: Option<String>,
         group: Option<String>,
     ) {
         self.validate_transactions();
 
-        let mut filtered_transactions: Vec<&Transaction> = match period {
-            Some(y) => self._query_by_transaction_date(&y),
-            None => self.transactions.iter().collect(),
+        let mut filtered_transactions: Vec<&Transaction> = match (from, to) {
+            (Some(f), Some(t)) => self._query_by_transaction_date(Some(&f), Some(&t)),
+            (Some(f), None) => self._query_by_transaction_date(Some(&f), None),
+            (None, Some(t)) => self._query_by_transaction_date(None, Some(&t)),
+            (None, None) => self.transactions.iter().collect(),
         };
 
         let filtered_accounts: Vec<&Account> = match account_type {
@@ -443,16 +450,6 @@ impl Ledger {
             .collect();
     }
 
-    pub fn _query_by_account_date(&self, account_date: &str) -> Vec<&Account> {
-        let query_year =
-            NaiveDate::from_str(&format!("{}-01-01", account_date)).unwrap_or_default();
-        return self
-            .accounts
-            .iter()
-            .filter(|a| a.open.year().eq(&query_year.year()))
-            .collect();
-    }
-
     pub fn _query_by_transaction_payee(&self, payee: &str) -> Vec<&Transaction> {
         return self
             .transactions
@@ -461,13 +458,18 @@ impl Ledger {
             .collect();
     }
 
-    pub fn _query_by_transaction_date(&self, year: &str) -> Vec<&Transaction> {
-        let query_year = NaiveDate::from_str(&format!("{}-01-01", year)).unwrap_or_default();
+    pub fn _query_by_transaction_date(
+        &self,
+        from: Option<&str>,
+        to: Option<&str>,
+    ) -> Vec<&Transaction> {
+        let from = NaiveDate::from_str(from.unwrap_or("1970-01-01")).unwrap_or_default();
+        let to = NaiveDate::from_str(to.unwrap_or("2999-01-01")).unwrap_or_default();
         let filtered_transactions: Vec<&Transaction> = self
             .transactions
             .iter()
-            .filter(|t| t.date.year().eq(&query_year.year()))
+            .filter(|t| t.date.ge(&from) && t.date.le(&to))
             .collect();
-        return filtered_transactions;
+        filtered_transactions
     }
 }
