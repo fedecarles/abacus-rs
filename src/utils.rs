@@ -85,3 +85,13 @@ pub fn parse_value_to_naivedate(val: &Value, col: &str) -> NaiveDate {
     )
     .unwrap_or_default();
 }
+
+pub fn quarter(month: u32) -> u32 {
+    match month {
+        1 | 2 | 3 => 1,
+        4 | 5 | 6 => 2,
+        7 | 8 | 9 => 3,
+        10 | 11 | 12 => 4,
+        _ => unreachable!(),
+    }
+}

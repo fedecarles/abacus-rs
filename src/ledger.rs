@@ -3,6 +3,7 @@ use crate::price::Price;
 use crate::transaction::Transaction;
 use crate::utils::*;
 use chrono::prelude::*;
+use itertools::Itertools;
 use std::collections::HashMap;
 use std::error::Error;
 use std::str::FromStr;
@@ -241,16 +242,14 @@ impl Ledger {
         period: Option<String>,
         account_type: Option<Vec<String>>,
         price: Option<String>,
+        group: Option<String>,
     ) {
-        let _ = &self
-            .accounts
-            .sort_by(|a, b| a.account_type.cmp(&b.account_type));
+        self.validate_transactions();
 
-        let filtered_transactions: Vec<&Transaction> = match period {
+        let mut filtered_transactions: Vec<&Transaction> = match period {
             Some(y) => self._query_by_transaction_date(&y),
             None => self.transactions.iter().collect(),
         };
-        self.validate_transactions();
 
         let filtered_accounts: Vec<&Account> = match account_type {
             Some(a) => a
@@ -259,43 +258,80 @@ impl Ledger {
                 .collect(),
             None => self.accounts.iter().collect(),
         };
-        let name_list: Vec<usize> = filtered_accounts.iter().map(|a| a.name.len()).collect();
-        let name_max: &usize = name_list.iter().max().unwrap();
 
-        let bal = &self._get_balances(filtered_transactions, price.to_owned());
+        filtered_transactions.sort_by(|a, b| a.date.cmp(&b.date));
 
-        let mut atypes: Vec<&AccountType> =
-            filtered_accounts.iter().map(|t| &t.account_type).collect();
+        let mut account_names: Vec<String> = filtered_accounts
+            .iter()
+            .filter(|a| a.opening_balance.is_some())
+            .map(|a| a.name.to_string())
+            .chain(
+                filtered_transactions
+                    .iter()
+                    .flat_map(|t| vec![t.account.to_string(), t.offset_account.to_string()]),
+            )
+            .collect();
+        account_names.sort();
+        account_names.dedup();
+
+        let balances_by_period =
+            self._group_transactions_by_period(filtered_transactions, price.to_owned(), group);
+
+        let sorted_periods: Vec<_> = balances_by_period
+            .keys()
+            .sorted_by(|a, b| b.cmp(&a))
+            .collect();
+
+        // find the max lenght of the account names
+        let name_max: Option<usize> = filtered_accounts.iter().map(|a| a.name.len()).max();
+
+        let mut atypes: Vec<_> = filtered_accounts.iter().map(|t| &t.account_type).collect();
         atypes.dedup();
-        let is_zero = 0.0 as f32;
 
+        // Begin printing balances
+        // Print header
+        let header = format!(
+            "{:<name_width$}",
+            "Accounts",
+            name_width = name_max.unwrap_or(15)
+        );
+        print!("\t{:>} ", header);
+        for h in &sorted_periods {
+            print!("\t{:>15}-{}", h.0, h.1);
+        }
+        println!("");
+
+        // Print data rows
         for t in atypes {
-            let mut total = 0.0;
             println!("{}", t);
-            for a in &filtered_accounts {
-                if t == &a.account_type {
-                    for (account, amount) in bal.iter() {
-                        if (account.eq(&a.name)) & (amount.ne(&is_zero)) {
-                            let curr = match &price {
-                                Some(p) => p,
-                                None => &a.currency,
-                            };
-                            let output = format!(
-                                "    {:<name_width$} {:11.2} {}",
-                                a.name.replace('"', ""),
-                                amount,
-                                curr.replace('"', ""),
-                                name_width = name_max,
+
+            for a in filtered_accounts
+                .iter()
+                .filter(|a| account_names.contains(&a.name) && t.eq(&a.account_type))
+            {
+                let name = format!(
+                    "{:<name_width$}",
+                    a.name,
+                    name_width = name_max.unwrap_or(15)
+                );
+                print!("\t{:<15}", name);
+                for p in &sorted_periods {
+                    if let Some(period_data) = balances_by_period.get(p) {
+                        if let Some(value) = period_data.get(&a.name) {
+                            print!(
+                                "\t{:>15.2} {}",
+                                value,
+                                &price.as_ref().unwrap_or(&a.currency)
                             );
-                            println!("{}", output);
-                            total += amount;
+                        } else {
+                            print!("\t{:>15.2} {}", 0.0, a.currency);
                         }
+                    } else {
+                        print!("\t{:>15.2} {}", 0.0, a.currency);
                     }
                 }
+                println!("");
             }
-            println!("{:-<45}", "-");
-            let subtot = format!("\t\t\tTotal: {:.2}", total,);
-            println!("{}", subtot);
         }
     }
 
@@ -338,6 +374,49 @@ impl Ledger {
             }
         }
         balances
+    }
+
+    fn _group_transactions_by_period(
+        &self,
+        transactions: Vec<&Transaction>,
+        price: Option<String>,
+        group: Option<String>,
+    ) -> HashMap<(u32, u32), HashMap<String, f32>> {
+        // Create a HashMap to store data for each period
+        let mut transactions_by_period: HashMap<(u32, u32), Vec<&Transaction>> = HashMap::new();
+
+        // Iterate through the transactions and categorize data by period
+        for entry in transactions {
+            let month = entry.date.month();
+            let quarter = quarter(entry.date.month());
+            let year = entry.date.year() as u32;
+
+            let period: (u32, u32) = match group {
+                Some(ref g) => match g.as_str() {
+                    "M" => (year, month),
+                    "Q" => (year, quarter),
+                    "Y" => (year, year),
+                    _ => (0, 0),
+                },
+                None => (0, 0),
+            };
+
+            // Add the entry to the corresponding month in the HashMap
+            transactions_by_period
+                .entry(period)
+                .or_insert_with(Vec::new)
+                .push(entry);
+        }
+
+        let mut balances_by_period: HashMap<(u32, u32), HashMap<String, f32>> = HashMap::new();
+
+        // Get balances for each period
+        for (period, transactions) in transactions_by_period {
+            let mut bal = self._get_balances(transactions, price.to_owned());
+            bal.retain(|_, &mut value| value != 0.0);
+            balances_by_period.entry(period).or_insert(bal);
+        }
+        balances_by_period
     }
 
     pub fn _query_by_account_name(&self, account_name: &str) -> Vec<&Account> {
