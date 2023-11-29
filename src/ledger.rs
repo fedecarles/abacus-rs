@@ -18,7 +18,7 @@ pub struct Ledger {
 
 impl Ledger {
     pub fn new(ledger_file: &str) -> Result<Self, Box<dyn Error>> {
-        let parsed_toml: Value = toml::from_str(&ledger_file).expect("Failed to parse TOML");
+        let parsed_toml: Value = toml::from_str(&ledger_file)?;
 
         let account_list = parsed_toml.get("account").and_then(|v| v.as_array());
         let transactions_list = parsed_toml.get("transaction").and_then(|v| v.as_array());
@@ -197,7 +197,7 @@ impl Ledger {
             None => filtered_accounts,
         };
 
-        let name_list: Vec<usize> = self.accounts.iter().map(|a| a.clone().name.len()).collect();
+        let name_list: Vec<usize> = self.accounts.iter().map(|a| a.name.len()).collect();
         let name_max: &usize = name_list.iter().max().unwrap();
 
         for t in &filtered_transactions {

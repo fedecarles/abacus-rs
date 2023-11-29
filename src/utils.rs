@@ -86,6 +86,16 @@ pub fn parse_value_to_naivedate(val: &Value, col: &str) -> NaiveDate {
     .unwrap_or_default();
 }
 
+pub fn parse_value<T>(value: &Value, key: &str) -> Option<T>
+where
+    T: FromStr,
+{
+    value
+        .get(key)
+        .and_then(|v| v.as_str())
+        .and_then(|s| s.parse().ok())
+}
+
 pub fn quarter(month: u32) -> u32 {
     match month {
         1 | 2 | 3 => 1,
