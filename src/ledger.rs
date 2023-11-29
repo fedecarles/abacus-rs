@@ -331,7 +331,7 @@ impl Ledger {
                                 &price.as_ref().unwrap_or(&a.currency)
                             );
                         } else {
-                            print!("\t{:>15.2} {}", 0.0, a.currency);
+                            print!("\t{:>15.2} {}", 0.0, &price.as_ref().unwrap_or(&a.currency));
                         }
                     } else {
                         print!("\t{:>15.2} {}", 0.0, a.currency);

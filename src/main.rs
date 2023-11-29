@@ -49,7 +49,7 @@ enum Commands {
         /// Filter transactions by start date
         #[arg(short, long)]
         from: Option<String>,
-        /// Filter transactions end date
+        /// Filter transactions by end date
         #[arg(short, long)]
         to: Option<String>,
         /// Filter accounts by account type
