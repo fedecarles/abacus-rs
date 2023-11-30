@@ -50,31 +50,17 @@ where
     NaiveDate::parse_from_str(&date_str, "%d/%m/%Y").map_err(serde::de::Error::custom)
 }
 
-pub fn parse_value_to_string(val: &Value, col: &str) -> String {
-    return val
-        .get(col)
-        .expect(format!("{} is a required field", col).as_str())
-        .to_string();
-}
-
-pub fn parse_value_to_slice<'a>(val: &'a Value, col: &str) -> &'a str {
-    return val
-        .get(col)
-        .expect(format!("{} is a required field", col).as_str())
-        .as_str()
-        .expect("Invalid account type");
-}
-pub fn parse_value_to_f32(val: &Value, col: &str) -> f32 {
-    let toml_value = val.get(col);
+pub fn parse_value_to_f32<T>(value: &Value, key: &str) -> Option<f32> {
+    let toml_value = value.get(key);
     let float_value = match toml_value.unwrap_or(&Value::Float(0.0)) {
         Value::Integer(integer_value) => *integer_value as f32,
         Value::Float(float_value) => *float_value as f32,
         _ => panic!("Amount is not an integer or float"),
     };
-    return float_value;
+    return Some(float_value);
 }
 
-pub fn parse_value_to_naivedate(val: &Value, col: &str) -> NaiveDate {
+pub fn parse_value_to_naivedate(val: &Value, col: &str) -> Option<NaiveDate> {
     return NaiveDate::from_str(
         val.get(col)
             .expect("{} is a required field")
@@ -83,7 +69,7 @@ pub fn parse_value_to_naivedate(val: &Value, col: &str) -> NaiveDate {
             .to_string()
             .as_ref(),
     )
-    .unwrap_or_default();
+    .ok();
 }
 
 pub fn parse_value<T>(value: &Value, key: &str) -> Option<T>

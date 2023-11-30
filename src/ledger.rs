@@ -37,20 +37,20 @@ impl Ledger {
                 let mut accounts = Vec::new();
 
                 for account in list.iter() {
-                    let name = parse_value_to_string(account, "name");
-                    let open = parse_value_to_naivedate(account, "open");
-                    let currency = parse_value_to_string(account, "currency");
-                    let account_type = parse_value_to_slice(account, "type");
+                    let name = parse_value(account, "name");
+                    let open = parse_value(account, "open");
+                    let currency = parse_value(account, "currency");
+                    let account_type = parse_value(account, "type");
                     let opening_balance = match account.get("opening_balance") {
                         Some(f) => f.to_string().parse::<f32>().ok(),
                         None => None,
                     };
 
                     let account = Account::new(
-                        name,
-                        open,
-                        currency,
-                        account_to_enum(account_type),
+                        name.unwrap_or_default(),
+                        open.unwrap_or_default(),
+                        currency.unwrap_or_default(),
+                        account_type.unwrap_or(AccountType::Assets),
                         opening_balance,
                     );
 
@@ -71,35 +71,28 @@ impl Ledger {
                 let mut transactions = Vec::new();
 
                 for transaction in list.iter() {
-                    let account = parse_value_to_string(transaction, "account");
+                    let account = parse_value(transaction, "account");
                     let date = parse_value_to_naivedate(transaction, "date");
-                    let payee = match transaction.get("payee") {
-                        Some(p) => Some(p.to_string().replace('"', "")),
-                        None => None,
-                    };
+                    let payee = parse_value(transaction, "payee");
                     let quantity = match transaction.get("quantity") {
                         Some(q) => q.as_float().map(|f| f as f32),
                         None => Some(1.0),
-                    }
-                    .unwrap_or(1.0);
-                    let amount = parse_value_to_f32(transaction, "amount");
-                    let offset_account = parse_value_to_string(transaction, "offset_account");
+                    };
+                    let amount = parse_value_to_f32::<f32>(transaction, "amount");
+                    let offset_account = parse_value(transaction, "offset_account");
                     let offset_amount = match transaction.get("offset_amount") {
                         Some(q) => q.as_float().unwrap_or_default() as f32,
-                        None => amount * -1.0,
+                        None => amount.unwrap_or_default() * -1.0,
                     };
-                    let note = match transaction.get("note") {
-                        Some(n) => Some(n.to_string().replace('"', "")),
-                        None => None,
-                    };
+                    let note = parse_value(transaction, "note");
 
                     let transaction = Transaction::new(
-                        date,
-                        account,
+                        date.unwrap_or_default(),
+                        account.unwrap_or_default(),
                         payee,
-                        quantity,
-                        amount,
-                        offset_account,
+                        quantity.unwrap_or(1.0),
+                        amount.unwrap_or_default(),
+                        offset_account.unwrap_or_default(),
                         offset_amount,
                         note,
                     );
@@ -119,10 +112,15 @@ impl Ledger {
 
                 for price in list.iter() {
                     let date = parse_value_to_naivedate(price, "date");
-                    let commodity = parse_value_to_string(price, "commodity");
-                    let amount = parse_value_to_f32(price, "price");
-                    let currency = parse_value_to_string(price, "currency");
-                    let price = Price::new(date, commodity, amount, currency);
+                    let commodity = parse_value(price, "commodity");
+                    let amount = parse_value_to_f32::<f32>(price, "price");
+                    let currency = parse_value(price, "currency");
+                    let price = Price::new(
+                        date.unwrap_or_default(),
+                        commodity.unwrap_or_default(),
+                        amount.unwrap_or_default(),
+                        currency.unwrap_or_default(),
+                    );
                     prices.push(price);
                 }
                 Ok(prices)

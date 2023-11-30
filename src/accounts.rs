@@ -1,5 +1,5 @@
 use chrono::prelude::*;
-use std::fmt;
+use std::{fmt, str::FromStr};
 
 #[derive(Debug, Clone, Eq, Ord, PartialEq, PartialOrd)]
 pub enum AccountType {
@@ -28,6 +28,24 @@ impl fmt::Display for AccountType {
             AccountType::Holdings => write!(f, "{:<11}", "Holdings"),
             AccountType::Cash => write!(f, "{:<11}", "Cash"),
             AccountType::Unknown => write!(f, "{:<11}", "Unknown"),
+        }
+    }
+}
+
+impl FromStr for AccountType {
+    type Err = ();
+    fn from_str(input: &str) -> Result<AccountType, Self::Err> {
+        match input {
+            "Assets" => Ok(AccountType::Assets),
+            "Income" => Ok(AccountType::Income),
+            "Liabilities" => Ok(AccountType::Liabilities),
+            "Expenses" => Ok(AccountType::Expenses),
+            "Equity" => Ok(AccountType::Equity),
+            "Stocks" => Ok(AccountType::Stocks),
+            "MutualFunds" => Ok(AccountType::MutualFunds),
+            "Holdings" => Ok(AccountType::Holdings),
+            "Cash" => Ok(AccountType::Cash),
+            _ => Ok(AccountType::Unknown),
         }
     }
 }
