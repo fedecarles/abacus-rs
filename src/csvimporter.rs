@@ -1,5 +1,5 @@
 use chrono::prelude::*;
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::error::Error;
 use std::fs::OpenOptions;
 use std::io::Write;
@@ -7,9 +7,8 @@ use toml::to_string_pretty;
 
 #[derive(Debug, Deserialize, Serialize)]
 struct CsvRow {
-    //#[serde(serialize_with = "serialize_date")]
-    //#[serde(deserialize_with = "deserialize_date")]
-    date: String,
+    #[serde(rename = "date")]
+    date_str: String,
     account: String,
     payee: Option<String>,
     quantity: Option<f32>,
@@ -28,12 +27,11 @@ pub fn import_transactions(
 
     for result in rdr.deserialize() {
         let mut row: CsvRow = result?;
-        row.date = NaiveDate::parse_from_str(
-            row.date.to_string().as_str(),
-            &date_format.to_owned().unwrap_or("%d/%m/%Y".to_string()),
-        )
-        .unwrap_or_default()
-        .to_string();
+        println!("{}", row.date_str);
+        row.date_str = row.date_str.to_owned();
+        let date_format = date_format.as_deref().unwrap_or("%d/%m/%Y");
+        let date = NaiveDate::parse_from_str(&row.date_str, date_format)?;
+        row.date_str = date.to_string();
         row.amount = row.amount.abs();
         row.quantity = None;
         row.offset_account = row.offset_account;

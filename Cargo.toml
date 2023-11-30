@@ -6,10 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+serde = { version = "1.0.188", features = ["derive"] }
 toml = { version = "0.8.0" }
 chrono = { version = "0.4.26" }
-serde = { version = "1.0.188" }
-serde_derive = { version = "1.0.188" }
 csv = { version = "1.2.2" }
 clap = { version = "4.4.6", features = ["derive"] }
 itertools = { version = "0.12.0" }
