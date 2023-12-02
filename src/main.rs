@@ -44,7 +44,7 @@
 //!   -f, --from <FROM>         Filter transactions by start date
 //!   -t, --to <TO>             Filter transactions by end date
 //!   -p, --price <PRICE>       Price balances at specific currency
-//!   -g, --group <GROUP>       Group balances by period
+//!   -g, --group <GROUP>       Group balances by period (M, Q or Y)
 //!   -h, --help                Print help
 //!
 //! Account balances are printed for all accounts by default.
@@ -181,7 +181,7 @@ pub enum Commands {
         /// Price balances at specific currency
         #[arg(short, long)]
         price: Option<String>,
-        /// Group balances by period
+        /// Group balances by period (M, Q or Y)
         #[arg(short, long)]
         group: Option<String>,
     },
