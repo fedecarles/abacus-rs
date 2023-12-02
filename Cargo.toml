@@ -4,8 +4,8 @@ description = "A simplified plain text cli accounting tool."
 authors = ["Federico Carles"]
 version = "0.2.0"
 edition = "2021"
-licence = "GPL-3.0-or-later"
-licence-file = "LICENCE.md"
+license = "GPL-3.0-or-later"
+license-file = "LICENCE.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
