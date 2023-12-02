@@ -1,3 +1,5 @@
+//! This module defines the main [Ledger] struct and operations.
+
 use crate::accounts::*;
 use crate::price::Price;
 use crate::transaction::Transaction;
@@ -31,6 +33,7 @@ impl Ledger {
         })
     }
 
+    /// Parses the accounts from the ledger file.
     fn _get_accounts(account_list: Option<&Vec<Value>>) -> Result<Vec<Account>, String> {
         let all_accounts: Vec<Account> = match account_list {
             Some(list) => {
@@ -45,7 +48,6 @@ impl Ledger {
                         Some(f) => f.to_string().parse::<f32>().ok(),
                         None => None,
                     };
-
                     let account = Account::new(
                         name.unwrap_or_default(),
                         open.unwrap_or_default(),
@@ -63,6 +65,7 @@ impl Ledger {
         Ok(all_accounts)
     }
 
+    /// Parses the transactions from the ledger file.
     fn _get_transactions(
         transactions_list: Option<&Vec<Value>>,
     ) -> Result<Vec<Transaction>, String> {
@@ -105,6 +108,7 @@ impl Ledger {
         all_transactions
     }
 
+    /// Parses the commodity prices from the ledger file.
     fn _get_prices(price_list: Option<&Vec<Value>>) -> Result<Vec<Price>, String> {
         let all_prices: Result<Vec<Price>, String> = match price_list {
             Some(list) => {
@@ -130,6 +134,10 @@ impl Ledger {
         all_prices
     }
 
+    /// Validates each transaction in the ledger:
+    /// 1. For each transaction, check if the account is declared.
+    /// 2. For each transaction, check if the amounts are balanced.
+    /// 3. Transactions between accounts with different currencies are not validated for balance.
     pub fn validate_transactions(&self) {
         for t in self.transactions.iter() {
             // check if the account exists
@@ -139,30 +147,24 @@ impl Ledger {
             }
 
             // check if transactions balances
-            let sum_postings = t.amount + (t.offset_amount);
+            let sum_postings = t.amount + t.offset_amount;
             if sum_postings != 0.0 {
                 // only check check balances if the accounts have the same currency
-                let account_currency = &self
-                    .accounts
-                    .iter()
-                    .find(|a| a.name == t.account)
-                    .unwrap()
-                    .currency;
+                let account_currency = &self.accounts.iter().find(|a| a.name == t.account);
+                let offset_currency = &self.accounts.iter().find(|a| a.name == t.offset_account);
 
-                let offset_currency = &self
-                    .accounts
-                    .iter()
-                    .find(|a| a.name == t.offset_account)
-                    .unwrap()
-                    .currency;
-
-                if account_currency == offset_currency {
-                    panic!("Transaction does not balance:\n {}", t)
+                if let Some(ac) = account_currency {
+                    if let Some(oc) = offset_currency {
+                        if ac.currency.eq(&oc.currency) {
+                            panic!("Transaction does not balance:\n {}", t)
+                        }
+                    }
                 }
             }
         }
     }
 
+    /// Print a journal of transactions.
     pub fn print_journal(
         &mut self,
         from: Option<String>,
@@ -223,6 +225,7 @@ impl Ledger {
         }
     }
 
+    /// Print a list of all declared accounts.
     pub fn print_accounts(self) {
         let name_list: Vec<usize> = self.accounts.iter().map(|a| a.name.len()).collect();
         let name_max: &usize = name_list.iter().max().unwrap();
@@ -239,6 +242,7 @@ impl Ledger {
         }
     }
 
+    /// Print a list of account balances.
     pub fn print_balances(
         &mut self,
         from: Option<String>,
@@ -340,6 +344,7 @@ impl Ledger {
         }
     }
 
+    /// Calculates the balance amounts.
     fn _get_balances(
         &self,
         transactions: Vec<&Transaction>,
@@ -381,6 +386,7 @@ impl Ledger {
         balances
     }
 
+    /// Aggregates balances by date grouping.
     fn _group_transactions_by_period(
         &self,
         transactions: Vec<&Transaction>,
@@ -424,6 +430,7 @@ impl Ledger {
         balances_by_period
     }
 
+    /// Filter accounts by name.
     pub fn _query_by_account_name(&self, account_name: &str) -> Vec<&Account> {
         return self
             .accounts
@@ -432,14 +439,19 @@ impl Ledger {
             .collect();
     }
 
+    /// Filter accounts by class type.
     pub fn _query_by_account_type(&self, account_type: &str) -> Vec<&Account> {
         return self
             .accounts
             .iter()
-            .filter(|a| a.account_type.eq(&account_to_enum(account_type)))
+            .filter(|a| {
+                a.account_type
+                    .eq(&AccountType::from_str(account_type).unwrap_or(AccountType::Assets))
+            })
             .collect();
     }
 
+    /// Filter accounts by currency.
     pub fn _query_by_account_currency(&self, account_currency: &str) -> Vec<&Account> {
         return self
             .accounts
@@ -448,6 +460,7 @@ impl Ledger {
             .collect();
     }
 
+    /// Filter transactions by payee.
     pub fn _query_by_transaction_payee(&self, payee: &str) -> Vec<&Transaction> {
         return self
             .transactions
@@ -456,6 +469,7 @@ impl Ledger {
             .collect();
     }
 
+    /// Filter transactions by from and to dates.
     pub fn _query_by_transaction_date(
         &self,
         from: Option<&str>,

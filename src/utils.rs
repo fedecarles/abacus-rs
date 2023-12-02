@@ -1,3 +1,5 @@
+//! This module contains utility functions.
+
 use crate::Ledger;
 use chrono::prelude::*;
 use serde::{Deserialize, Deserializer};
@@ -6,6 +8,8 @@ use std::fs::{self, read_to_string};
 use std::str::FromStr;
 use toml::Value;
 
+/// Reads a single toml file from a file path or multiple toml files from
+/// a directory.
 pub fn read_ledger_files(ledger_path: &str) -> Result<Ledger, Box<dyn Error>> {
     let ledger = match fs::metadata(ledger_path) {
         Ok(file) => {
@@ -32,16 +36,7 @@ pub fn read_ledger_files(ledger_path: &str) -> Result<Ledger, Box<dyn Error>> {
     return ledger;
 }
 
-// TODO implement serialization for dates
-// Serialize a String from a NaiveDate
-//pub fn serialize_date<S>(date: &NaiveDate, serializer: S) -> Result<S::Ok, S::Error>
-//where
-//    S: ser::Serializer,
-//{
-//    serializer.serialize_str(&date.format("%Y-%m-%d").to_string())
-//}
-
-// Deserialize a NaiveDate from a string
+/// Deserialize a NaiveDate from a string
 pub fn deserialize_date<'de, D>(deserializer: D) -> Result<NaiveDate, D::Error>
 where
     D: Deserializer<'de>,
@@ -50,6 +45,7 @@ where
     NaiveDate::parse_from_str(&date_str, "%d/%m/%Y").map_err(serde::de::Error::custom)
 }
 
+/// Parse toml values to f32.
 pub fn parse_value_to_f32<T>(value: &Value, key: &str) -> Option<f32> {
     let toml_value = value.get(key);
     let float_value = match toml_value.unwrap_or(&Value::Float(0.0)) {
@@ -60,6 +56,7 @@ pub fn parse_value_to_f32<T>(value: &Value, key: &str) -> Option<f32> {
     return Some(float_value);
 }
 
+/// Parse toml values to NaiveDate.
 pub fn parse_value_to_naivedate(val: &Value, col: &str) -> Option<NaiveDate> {
     return NaiveDate::from_str(
         val.get(col)
@@ -72,6 +69,7 @@ pub fn parse_value_to_naivedate(val: &Value, col: &str) -> Option<NaiveDate> {
     .ok();
 }
 
+/// Parse any string toml value.
 pub fn parse_value<T>(value: &Value, key: &str) -> Option<T>
 where
     T: FromStr,
@@ -82,6 +80,7 @@ where
         .and_then(|s| s.parse().ok())
 }
 
+/// Map months to quarters.
 pub fn quarter(month: u32) -> u32 {
     match month {
         1 | 2 | 3 => 1,

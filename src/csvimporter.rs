@@ -1,3 +1,5 @@
+//! This module is the csv transaction importer.
+
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::error::Error;

@@ -1,3 +1,22 @@
+//! This module defines the [Transaction] struct.
+//!
+//! Transactions require a **date** (in YYYY-MM-DD format), an **amount** (float or
+//! integer), an **account** and an **offset_account**. The **offset_amount** and **quantity**
+//! can be explicity declared, otherwise it will be set as the inverse of the
+//! amount and to one (1) respectively. **Payee** and **note** are optional fields.
+//!
+//! ```toml
+//! [[transaction]]
+//! date = 2023-10-03
+//! amount = 100.00
+//! account = "Dining"
+//! offset_account = "Savings Account"
+//! offset_amount = -100.00 # optional
+//! quantity = 1            # optional
+//! payee = "RESTAURAN X"   # optional
+//! note = "Meal was good"  # optional
+//! ```
+
 use crate::utils::deserialize_date;
 use chrono::prelude::NaiveDate;
 use serde::{Deserialize, Serialize};

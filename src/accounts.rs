@@ -1,3 +1,35 @@
+//! This module defines the [Account] struct and Enum.
+//!
+//! An account is in the toml ledger declared with a specific type of Assets,
+//! Liabilities, Expenses, Income, Equity, Stock, MutualFund, Holding or Cash.
+//!
+//! The account currency can be declared with any terminology.
+//!
+//! ```toml
+//! [[account]]
+//! open = 2023-09-30
+//! name = "Savings Account"
+//! type = "Assets"
+//! currency = "USD"
+//!
+//! [[account]]
+//! open = 2023-09-30
+//! name = "Dining"
+//! type = "Expenses"
+//! currency = "USD"
+//! ```
+//!
+//! An optional opening balance can be included.
+//!
+//! ```toml
+//! [[account]]
+//! open = 2023-09-30
+//! name = "Savings Account"
+//! type = "Assets"
+//! currency = "USD"
+//! opening_balance = 1000.00 # optional
+//! ```
+//!
 use chrono::prelude::*;
 use std::{fmt, str::FromStr};
 
@@ -99,21 +131,6 @@ impl fmt::Display for Account {
     }
 }
 
-pub fn account_to_enum(account_type: &str) -> AccountType {
-    match account_type {
-        "Assets" => AccountType::Assets,
-        "Income" => AccountType::Income,
-        "Liabilities" => AccountType::Liabilities,
-        "Expenses" => AccountType::Expenses,
-        "Equity" => AccountType::Equity,
-        "Stocks" => AccountType::Stocks,
-        "MutualFunds" => AccountType::MutualFunds,
-        "Holdings" => AccountType::Holdings,
-        "Cash" => AccountType::Cash,
-        _ => AccountType::Unknown,
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -153,15 +170,42 @@ mod tests {
 
     #[test]
     fn test_account_to_enum() {
-        assert_eq!(account_to_enum("Assets"), AccountType::Assets);
-        assert_eq!(account_to_enum("Income"), AccountType::Income);
-        assert_eq!(account_to_enum("Liabilities"), AccountType::Liabilities);
-        assert_eq!(account_to_enum("Expenses"), AccountType::Expenses);
-        assert_eq!(account_to_enum("Equity"), AccountType::Equity);
-        assert_eq!(account_to_enum("Stocks"), AccountType::Stocks);
-        assert_eq!(account_to_enum("MutualFunds"), AccountType::MutualFunds);
-        assert_eq!(account_to_enum("Holdings"), AccountType::Holdings);
-        assert_eq!(account_to_enum("Cash"), AccountType::Cash);
-        assert_eq!(account_to_enum("Unknown"), AccountType::Unknown);
+        assert_eq!(
+            AccountType::from_str("Assets").unwrap(),
+            AccountType::Assets
+        );
+        assert_eq!(
+            AccountType::from_str("Income").unwrap(),
+            AccountType::Income
+        );
+        assert_eq!(
+            AccountType::from_str("Liabilities").unwrap(),
+            AccountType::Liabilities
+        );
+        assert_eq!(
+            AccountType::from_str("Expenses").unwrap(),
+            AccountType::Expenses
+        );
+        assert_eq!(
+            AccountType::from_str("Equity").unwrap(),
+            AccountType::Equity
+        );
+        assert_eq!(
+            AccountType::from_str("Stocks").unwrap(),
+            AccountType::Stocks
+        );
+        assert_eq!(
+            AccountType::from_str("MutualFunds").unwrap(),
+            AccountType::MutualFunds
+        );
+        assert_eq!(
+            AccountType::from_str("Holdings").unwrap(),
+            AccountType::Holdings
+        );
+        assert_eq!(AccountType::from_str("Cash").unwrap(), AccountType::Cash);
+        assert_eq!(
+            AccountType::from_str("Unknown").unwrap(),
+            AccountType::Unknown
+        );
     }
 }

@@ -1,3 +1,22 @@
+//! This module defines the commodity [Price] struct.
+//!
+//! Declaring Commodity prices is entirely optional but very useful to price
+//! stocks or currencies.
+//!
+//! ```toml
+//! [[price]]
+//! date = 2023-10-02
+//! commodity = "ARS"
+//! price = 0.00125
+//! currency = "USD"
+//!
+//! [[price]]
+//! date = 2023-09-30
+//! commodity = "VOO"
+//! price = 390.50
+//! currency = "USD"
+//! ```
+
 use chrono::prelude::*;
 
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
