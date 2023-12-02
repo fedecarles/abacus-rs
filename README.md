@@ -12,6 +12,7 @@ For another rust based approach, you can also check [rust_ledger](https://github
 - Uses [toml](https://toml.io/en/) text format.
 - Import of transactions from csv.
 - Balance and Journal reports.
+- Group balances by Month, Quarter or Year.
 
 ## Usage
 
