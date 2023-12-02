@@ -1,5 +1,6 @@
 [package]
 name = "abacus-rs"
+authors = ["Federico Carles"]
 version = "0.2.0"
 edition = "2021"
 
