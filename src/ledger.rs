@@ -260,6 +260,7 @@ impl Ledger {
             (None, None) => self.transactions.iter().collect(),
         };
 
+        // Get all potential account names
         let filtered_accounts: Vec<&Account> = match account_type {
             Some(a) => a
                 .iter()
@@ -270,19 +271,6 @@ impl Ledger {
 
         filtered_transactions.sort_by(|a, b| a.date.cmp(&b.date));
 
-        let mut account_names: Vec<String> = filtered_accounts
-            .iter()
-            .filter(|a| a.opening_balance.is_some())
-            .map(|a| a.name.to_string())
-            .chain(
-                filtered_transactions
-                    .iter()
-                    .flat_map(|t| vec![t.account.to_string(), t.offset_account.to_string()]),
-            )
-            .collect();
-        account_names.sort();
-        account_names.dedup();
-
         let balances_by_period =
             self._group_transactions_by_period(filtered_transactions, price.to_owned(), group);
 
@@ -290,6 +278,15 @@ impl Ledger {
             .keys()
             .sorted_by(|a, b| b.cmp(&a))
             .collect();
+
+        // Get account names with actual balances
+        let mut account_names: Vec<String> = balances_by_period
+            .values()
+            .flat_map(|balances| balances.keys().cloned())
+            .collect();
+
+        account_names.sort();
+        account_names.dedup();
 
         // find the max lenght of the account names
         let name_max: Option<usize> = filtered_accounts.iter().map(|a| a.name.len()).max();
@@ -316,7 +313,7 @@ impl Ledger {
 
             for a in filtered_accounts
                 .iter()
-                .filter(|a| account_names.contains(&a.name) && t.eq(&a.account_type))
+                .filter(|a| account_names.contains(&&a.name) && t.eq(&a.account_type))
             {
                 let name = format!(
                     "{:<name_width$}",
