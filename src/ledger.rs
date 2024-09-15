@@ -7,6 +7,7 @@ use crate::utils::*;
 use chrono::prelude::*;
 use itertools::Itertools;
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::error::Error;
 use std::str::FromStr;
 use toml::Value;
@@ -292,6 +293,7 @@ impl Ledger {
         let name_max: Option<usize> = filtered_accounts.iter().map(|a| a.name.len()).max();
 
         let mut atypes: Vec<_> = filtered_accounts.iter().map(|t| &t.account_type).collect();
+        atypes.sort();
         atypes.dedup();
 
         // Begin printing balances
