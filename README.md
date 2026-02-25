@@ -13,11 +13,12 @@ For another rust based approach, you can also check [rust_ledger](https://github
 - Import of transactions from csv.
 - Balance and Journal reports.
 - Group balances by Month, Quarter or Year.
+- CLI and TUI interfaces
 
 ## Usage
 
 ```bash
-Usage: abacus-rs --ledger <LEDGER> [COMMAND]
+Usage: abacus-rs [OPTIONS] --ledger <LEDGER> [COMMAND]
 
 Commands:
   accounts  List accounts
@@ -28,6 +29,7 @@ Commands:
 
 Options:
   -l, --ledger <LEDGER>  Path to ledger file or directory
+  -t, --tui              Launch TUI interface
   -h, --help             Print help
   -V, --version          Print version
 ```
