@@ -25,6 +25,9 @@ pub fn read_ledger_files(ledger_path: &str) -> Result<Ledger, Box<dyn Error>> {
                         concatenated_files.push_str(&toml_content);
                     }
                 }
+                if concatenated_files.is_empty() {
+                    return Err("No TOML files found in directory".into());
+                }
                 Ledger::new(&concatenated_files)
             } else {
                 let toml_content = fs::read_to_string(ledger_path).expect("Failed to read file.");
@@ -42,7 +45,13 @@ where
     D: Deserializer<'de>,
 {
     let date_str = String::deserialize(deserializer)?;
-    NaiveDate::parse_from_str(&date_str, "%d/%m/%Y").map_err(serde::de::Error::custom)
+    let formats = ["%d/%m/%Y", "%Y-%m-%d"];
+    for format in &formats {
+        if let Ok(date) = NaiveDate::parse_from_str(&date_str, format) {
+            return Ok(date);
+        }
+    }
+    Err(serde::de::Error::custom("Invalid date format"))
 }
 
 /// Parse toml values to f32.
@@ -58,15 +67,16 @@ pub fn parse_value_to_f32<T>(value: &Value, key: &str) -> Option<f32> {
 
 /// Parse toml values to NaiveDate.
 pub fn parse_value_to_naivedate(val: &Value, col: &str) -> Option<NaiveDate> {
-    return NaiveDate::from_str(
-        val.get(col)
-            .expect("{} is a required field")
-            .as_datetime()
-            .expect("Invalid date format")
-            .to_string()
-            .as_ref(),
-    )
-    .ok();
+    let date_val = val.get(col)?;
+    if let Some(s) = date_val.as_str() {
+        return NaiveDate::from_str(s).ok();
+    }
+    if let Some(dt) = date_val.as_datetime() {
+        if let Some(d) = dt.date {
+            return NaiveDate::from_str(&d.to_string()).ok();
+        }
+    }
+    None
 }
 
 /// Parse any string toml value.

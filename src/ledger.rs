@@ -148,7 +148,7 @@ impl Ledger {
 
             // check if transactions balances
             let sum_postings = t.amount + t.offset_amount;
-            if sum_postings != 0.0 {
+            if (sum_postings - 0.0).abs() > f32::EPSILON {
                 // only check check balances if the accounts have the same currency
                 let account_currency = &self.accounts.iter().find(|a| a.name == t.account);
                 let offset_currency = &self.accounts.iter().find(|a| a.name == t.offset_account);
@@ -198,12 +198,12 @@ impl Ledger {
         };
 
         let name_list: Vec<usize> = self.accounts.iter().map(|a| a.name.len()).collect();
-        let name_max: &usize = name_list.iter().max().unwrap();
+        let name_max: usize = *name_list.iter().max().unwrap_or(&0);
 
         for t in &filtered_transactions {
             let get_account = filtered_accounts
                 .iter()
-                .find(|a| (a.name == t.account) | (a.name == t.offset_account));
+                .find(|a| (a.name == t.account) || (a.name == t.offset_account));
             if get_account.is_some() {
                 let posting = format!(
                     "{} | {:<name_width$} | {:11.2} | {}",
@@ -228,7 +228,7 @@ impl Ledger {
     /// Print a list of all declared accounts.
     pub fn print_accounts(self) {
         let name_list: Vec<usize> = self.accounts.iter().map(|a| a.name.len()).collect();
-        let name_max: &usize = name_list.iter().max().unwrap();
+        let name_max: usize = *name_list.iter().max().unwrap_or(&0);
         for a in self.accounts {
             let output = format!(
                 "| {} | {} | {:<name_width$} | {}",
@@ -422,7 +422,7 @@ impl Ledger {
         // Get balances for each period
         for (period, transactions) in transactions_by_period {
             let mut bal = self._get_balances(transactions, price.to_owned());
-            bal.retain(|_, &mut value| value != 0.0);
+            bal.retain(|_, value| *value != 0.0);
             balances_by_period.entry(period).or_insert(bal);
         }
         balances_by_period
