@@ -151,6 +151,7 @@ pub mod csvimporter;
 pub mod ledger;
 pub mod price;
 pub mod transaction;
+pub mod tui;
 pub mod utils;
 
 #[derive(Parser, Debug)]
@@ -159,6 +160,9 @@ pub struct Args {
     /// Path to ledger file or directory
     #[arg(short, long)]
     ledger: String,
+    /// Launch TUI interface
+    #[arg(short, long)]
+    tui: bool,
     #[command(subcommand)]
     command: Option<Commands>,
 }
@@ -216,6 +220,12 @@ pub enum Commands {
 
 fn main() -> Result<(), Box<dyn Error>> {
     let args = Args::parse();
+
+    if args.tui {
+        tui::run_tui(&args.ledger)?;
+        return Ok(());
+    }
+
     let ledger = read_ledger_files(&args.ledger);
 
     match args.command {

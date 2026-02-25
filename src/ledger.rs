@@ -11,11 +11,11 @@ use std::error::Error;
 use std::str::FromStr;
 use toml::Value;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Ledger {
-    accounts: Vec<Account>,
-    transactions: Vec<Transaction>,
-    prices: Vec<Price>,
+    pub accounts: Vec<Account>,
+    pub transactions: Vec<Transaction>,
+    pub prices: Vec<Price>,
 }
 
 impl Ledger {
