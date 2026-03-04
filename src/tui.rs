@@ -278,6 +278,15 @@ impl App {
             *balances.entry(offset_key).or_insert(0.0) += t.offset_amount;
         }
 
+        for a in &self.ledger.accounts {
+            if let Some(opening) = a.opening_balance {
+                for period in &periods {
+                    let key = format!("{}|{}", period, a.name);
+                    *balances.entry(key).or_insert(0.0) += opening;
+                }
+            }
+        }
+
         periods.sort();
         (periods, balances)
     }
