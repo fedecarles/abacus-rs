@@ -155,7 +155,7 @@ pub mod tui;
 pub mod utils;
 
 #[derive(Parser, Debug)]
-#[command(author = "Federico Carles", version = "0.2.3", about, long_about = None)]
+#[command(author = "Federico Carles", version = "0.2.4", about, long_about = None)]
 pub struct Args {
     /// Path to ledger file or directory
     #[arg(short, long)]
